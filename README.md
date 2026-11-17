@@ -25,7 +25,7 @@ Pour le **Stremio flatpak de Flathub** (`com.stremio.Stremio`, testé en version
 2. Cloner le repo et lancer le script :
 
    ```bash
-   git clone https://github.com/louiscockenpot/stremio-ambiant.git ~/Documents/stremio-ambient
+   git clone https://github.com/louiscockenpot/stremio-ambient.git ~/Documents/stremio-ambient
    cd ~/Documents/stremio-ambient
    ./install.sh
    ```
