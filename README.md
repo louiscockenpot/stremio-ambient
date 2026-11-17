@@ -1,8 +1,10 @@
 # stremio-ambient
 
+![C](https://img.shields.io/badge/C-glibc%202.34%2B-A8B9CC?logo=c&logoColor=white) ![GLSL](https://img.shields.io/badge/GLSL-shader%20mpv-5586A4?logo=opengl&logoColor=white) ![libmpv](https://img.shields.io/badge/libmpv-0.41-691F69?logo=mpv&logoColor=white) ![Stremio](https://img.shields.io/badge/Stremio-1.2-8A5AAB?logo=stremio&logoColor=white) ![Flatpak](https://img.shields.io/badge/Flatpak-Flathub-4A90D9?logo=flatpak&logoColor=white) ![GNOME Platform](https://img.shields.io/badge/GNOME%20Platform-50-4A86CF?logo=gnome&logoColor=white) ![Linux](https://img.shields.io/badge/Linux-x86__64-FCC624?logo=linux&logoColor=white)
+
 Sur un écran ultra-large (32:9), Stremio laisse de grandes bandes noires à gauche et à droite d'un film en 16:9. Ce repo les remplit avec un prolongement flouté et assombri de l'image, façon « ambilight » : l'image elle-même reste intacte, centrée, pixel pour pixel.
 
-Pour le **Stremio flatpak de Flathub** (`com.stremio.Stremio`, testé en version 1.2.2 avec son libmpv 0.41, GNOME Platform 50) sur Linux x86_64.
+Pour le **Stremio flatpak de Flathub** (`com.stremio.Stremio`, testé en version 1.2.2 avec son libmpv 0.41, GNOME Platform 50) sur Linux x86_64. Testé avec une puce graphique Intel Iris Xe et une carte Nvidia GeForce RTX 3060 Ti.
 
 ## Contenu
 
@@ -59,6 +61,8 @@ flatpak run com.stremio.Stremio 2>&1 | grep stremio-ambient
 
 La ligne `stremio-ambient: remplissage activé` doit apparaître. `flatpak override --user --show com.stremio.Stremio` doit montrer la ligne `LD_PRELOAD=…`.
 
+Sur un film en 16:9, les côtés doivent montrer le prolongement flouté. Si l'image est au contraire étirée sur toute la largeur, la bibliothèque est bien chargée mais le shader n'a pas pu être compilé par le pilote graphique (Stremio n'affiche pas les messages de mpv).
+
 ## Quand le remplissage est actif
 
 - **Seulement si un écran externe est allumé** : la bibliothèque regarde `/sys/class/drm/*/enabled` et ignore la dalle interne d'un portable (connecteurs `eDP`, `LVDS`, `DSI`). Sur un portable seul, le lecteur reste celui d'origine. Sur un **PC fixe**, tous les écrans sont « externes » (DP, HDMI) : le remplissage est donc toujours actif.
@@ -114,5 +118,5 @@ La bibliothèque retire `LD_PRELOAD` de l'environnement une fois chargée dans l
 - **Performances** : sur un Intel Iris Xe, une source 4K HDR passe d'environ 23 ms à 34 ms de rendu par image (budget 42 ms à 24 i/s). Ça tient, sans grande marge. Une carte graphique plus récente n'aura pas de souci.
 - **Sous-titres ASS positionnés** (option « style ASS » de Stremio) : placés par rapport à la fenêtre entière, ils peuvent tomber dans les marges. Les sous-titres texte ordinaires ne bougent pas.
 - Une ligne `ERROR: ld.so: object '…libstremio-ambient.so' cannot be preloaded … ignored` dans les journaux vient des sous-processus WebKit isolés, qui ne voient pas le fichier. Elle est sans effet.
-- Testé uniquement avec une puce graphique Intel. Le lanceur de Stremio change de moteur de rendu GTK sur les cartes Nvidia ; ça devrait marcher, mais ce n'est pas vérifié.
+- **Cartes Nvidia** : vérifié sur une GeForce RTX 3060 Ti (pilote propriétaire 580.178.04, KDE Plasma sous Wayland, écran 5120×1440). Le remplissage s'affiche et la carte reste peu chargée, environ 20 % en lecture, bureau compris. Le flatpak a besoin de l'extension `org.freedesktop.Platform.GL.nvidia-<version du pilote>`, que `flatpak update` installe normalement toute seule ; `flatpak list --runtime | grep GL.nvidia` doit montrer la même version que `nvidia-smi`. Les cartes AMD n'ont pas été testées.
 - Une mise à jour de Stremio qui changerait sa façon de piloter mpv pourrait désactiver le remplissage (le lecteur redevient alors celui d'origine).
